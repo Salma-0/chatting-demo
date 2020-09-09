@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/main.css" type="text/css"/>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script>
+            $(document).ready(function(){
+                $('.link').click(function(e){
+                    $('#loginForm').toggle();
+                    $('#registerForm').toggle();
+                });
+                
+                $('.close-btn').click(function(e){
+                    $('.msg > span').remove()
+                    $('.msg').hide();
+                })
+
+                $('#loginForm').on('submit', function(e){
+                    e.preventDefault();
+                    $.ajax({
+                        method: 'POST',
+                        url: "/users/login",
+                        data: {
+                            email: $('#loginEmail').val(),
+                            password: $('#loginPassword').val()
+                        }
+                    })
+                    .done(function(res){
+                       localStorage.setItem('token', res);
+                       $(location).attr('href', 'http://localhost:8080/users/home')
+                    })
+                    .fail(function(err){ 
+                        console.log(err.responseText);
+                        $('.msg').append(`<span>${err.responseText}</span>`)
+                        $('.msg').addClass('err-msg');
+                        $('.msg').show()
+                     })
+                })
+
+                $('#registerForm').on('submit', function(ev){
+                ev.preventDefault();
+                $.ajax({
+                    method: 'POST',
+                    url: '/users/register',
+                    data: {
+                        nickname: $('#registerName').val(),
+                        email: $('#registerEmail').val(),
+                        password: $('#registerPassword').val()
+                    }
+                })
+                .done(function(res){
+                    localStorage.setItem('token', res);
+                    $('.msg').append('<span>Account Created Successfully</span>');
+                    $('.msg').addClass('success-msg');
+                    $('.msg').show()
+                    $(location).attr('href', 'http://localhost:8080/users/home')
+
+                })
+                .fail(function(err){
+                    $('.msg').append(`<span>${err.responseText}</span>`)
+                    $('.msg').addClass('err-msg');
+                    $('.msg').show()
+                })
+            })
+
+            });
+
+        </script>
+        <title>Login</title>
+    </head>
+    <body>
+        <div class="container text-center justify-content-center">
+        <div>
+            <div class='msg'>
+                <button class='close-btn'>X</button>
+            </div>
+        </div>
+        <form id="loginForm" class='card m-3 p-3 shadow'>
+            <div class="form-group">
+                <input class='form-control' type="email" id='loginEmail' placeholder="email" name="email"/>
+            </div>
+            <div class="form-group">
+                <input type="password" class='form-control'  id='loginPassword' placeholder="password" name="password"/>
+            </div>
+            <div class="form-group">
+                <button type="submit" class='btn btn-danger'>Login</button>
+            </div>
+            <a href="#" class='link'>have no account yet?</a>
+
+        </form>
+        <form id="registerForm" class='p-3 m-3 card shadow'>
+            <div class="form-group">
+                <input class='form-control' type="text" id='registerName' placeholder="Nickname" name="nickname"/>
+            </div>
+            <div class="form-group">
+                <input class='form-control' type="email" id='registerEmail' placeholder="email" name="email"/>
+            </div>
+            <div class="form-group">
+                <input class='form-control' type="password" id='registerPassword' placeholder="password" name="password"/>
+            </div>
+            <div class="form-group">
+                <button class='btn btn-danger' type="submit">Registr</button>
+            </div>
+            <a href="#" class='link'>Already have an account?</a>
+        </form>
+        </div>
+    </body>
+</html>

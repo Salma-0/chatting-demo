@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,600;1,700&display=swap');
+
+* {
+    font-family: 'Cormorant Garamond', serif;
+    -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+
+.msg {
+    width: 100%;
+    color: #fff;
+    padding: 10px 10px;
+    display: none;
+    font-size: 100%;
+    font-weight: 700;
+}
+
+.err-msg {
+    background-color: #fc3d3d;
+}
+
+.success-msg{
+    background-color: #3bc28a;
+}
+
+.msg .close-btn {
+    position: relative;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    border: none;
+    color: #fff;
+}
+
+
+#registerForm {
+    display: none;
+}
+
+
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+#messages {
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+
+.input-box {
+    height: 30px;
+    display: flex;
+    width: 100%;
+}
+
+.input-box input{
+    width: 90%;
+}
+
+.input-box button{
+    width: 10%;
+}
+
+.message {
+    margin: 5%;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 20px;
+    width: 50%;
+}
+
+.message-sender {
+   float: left;
+    background-color: rgb(203, 248, 113);
+    text-align: left;
+}
+
+.message-reciever {
+    text-align: right;
+    float: right;
+    background-color: #9fd7f1;
+}
