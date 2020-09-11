@@ -4,6 +4,7 @@ const db = require('./config/db');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const path = require('path');
+const Message = require('./models/Message');
 
 const connectedUsers = new Map();
 
@@ -16,6 +17,16 @@ function removeId(id){
     }
 }
 
+function getData(id){
+    for(let [key, value] of connectedUsers){
+        if(connectedUsers.get(key).socketId === id){
+            return value;
+        }
+    }
+    return {};
+}
+
+exports.getConnectedUsers = function(){return connectedUsers}
 
 //current room should be global for all sockets
 //when created upon connection it works only to socket that emitted the event while the current room is undefined for others
@@ -23,9 +34,17 @@ let currentRoom = ''
 let rooms = [];
 
 io.on('connection', socket => {
+    
     socket.on('setEmail', data => {
-        connectedUsers.set(data.email, socket.id);
+        let {email, nickname, _id} = data.user;
+        connectedUsers.set(data.user.email, {socketId: socket.id, nickname: nickname, _id: _id});
         rooms.forEach(r => socket.join(r));
+
+        data.user.friends.forEach(f => {
+            if(connectedUsers.has(f.email)){
+                io.to(connectedUsers.get(f.email).socketId).emit('online', _id);
+            }
+        })
     })
     
     
@@ -35,7 +54,7 @@ io.on('connection', socket => {
 
     socket.on('start-chat', email => {
         const roomName = new Date().getTime().toString()
-        let id1 = connectedUsers.get(email)
+        let id1 = connectedUsers.get(email).socketId || ''
      
    
       socket.join(roomName)
@@ -45,15 +64,19 @@ io.on('connection', socket => {
     })
 
     
+
+    
     socket.on('accept', function(roomName){
         socket.join(roomName);
         currentRoom = roomName;
+        io.to(roomName).emit('joined', getData(socket.id));
         rooms.push(roomName);
     });
 
 
     socket.on('message', data => {
         io.to(currentRoom).emit('message', data)
+        
     });
 })
 

@@ -1,9 +1,18 @@
+function findItem(arr, val){
+   for(let i=0; i<arr.length; i++){
+       if(arr[i] === val){
+           return true;
+       }
+   }
+   return false;
+}
+
 $(document).ready(function(){
     $.ajaxSetup({
         headers: { 'x-auth-token': localStorage.getItem('token') }
     });
 
-
+   
     $('.close-btn').click(function(e){
         $('.msg > span').remove()
         $('.msg').hide();
@@ -21,17 +30,19 @@ $(document).ready(function(){
            url: 'http://localhost:8080/users',
        })
        .done(function(res){
-           user = res;
-           socket.emit('setEmail', {id: socket.id, email: user.email});
-
+           user = res.user;
+           socket.emit('setEmail', {id: socket.id, user: user});
            //show friends
-           res.friends.forEach(f =>{
-                $('#friends').append(`<li class='list-group-item'><a id='${f._id}' href="#" >${f.nickname}</a></li>`)
-                $('#'+f._id).click(e =>{ 
+           res.user.friends.forEach(f =>{
+                $('#friends').append(`<li class='list-group-item' id='${f._id}'><i class='fa fa-circle'/><a href="#" >  ${f.nickname}</a></li>`)
+                $('#'+f._id).find('a').click(e =>{ 
                     e.preventDefault()
                     $(location).attr('href', '/chats')
                     socket.emit('start-chat', f.email)
                 })
+                if(findItem(res.online, f._id)){
+                    $('#'+f._id).find('i').css('color', '#00cc8f')
+                }
             })
            
        }).fail(function(err){
@@ -91,8 +102,22 @@ $(document).ready(function(){
 
     })
 
-    
+    socket.on('online', id => {
+        console.log(id, 'is online')
+       let icon = $('#'+id).find('i').css('color', '#00cc8f')
+    })
 
-    
+    socket.on('joined', data => {
+        console.log(data.nickname, 'has joined the chat')
+        $('#messages').append(`<small>${data.nickname} has joined the chat<small>`)
+    })
 
+
+})
+
+$(document).keydown(function(ev){
+    if((ev.keyCode || ev.which) === 13){
+        ev.preventDefault();
+     $('#sendBtn').trigger('click')
+    }
 })

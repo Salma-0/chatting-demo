@@ -5,6 +5,7 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const {getConnectedUsers} = require('../app');
 
 
 //send login . register page
@@ -87,8 +88,14 @@ router.get('/', auth, async (req, res)=> {
             path: 'friends',
             select: 'nickname email'
         });
-        //console.log(user);
-        res.json(user);
+        const online = [];
+        const connected = getConnectedUsers();
+        user.friends.forEach((f) =>{
+            if(connected.has(f.email)){
+                online.push(f._id);
+            }
+        })
+        res.json({user, online});
     } catch (error) {
         console.error(error.stack)
         res.status(500).send(error.message);
